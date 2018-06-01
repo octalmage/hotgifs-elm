@@ -32,6 +32,9 @@ init topic =
 -- UPDATE
 
 
+-- To capture tab we'll need to use this technique to prevent default:
+-- https://github.com/elm/virtual-dom/issues/18#issuecomment-273403774
+
 onKeyDown : (Int -> msg) -> Attribute msg
 onKeyDown event =
     on "keydown" (Decode.map event keyCode)
@@ -85,9 +88,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h2 [] [ text model.topic ]
-        , input [ value model.topic, onInput UpdateTopic, onKeyDown KeyDown, onKeyUp KeyUp ] []
-        , button [ onClick MorePlease, onSubmit MorePlease ] [ text "Search" ]
+        [ input [ value model.topic, onInput UpdateTopic, onKeyDown KeyDown, onKeyUp KeyUp ] []
         , br [] []
         , img [ src model.gifUrl, style [("display", if model.enterKeyDown then "block" else "none")] ] []
         ]
