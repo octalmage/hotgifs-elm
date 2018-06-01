@@ -15,24 +15,19 @@ main =
         , subscriptions = subscriptions
         }
 
-
-
 -- MODEL
-
-
 type alias Model =
     { topic : String
     , gifUrl : String
+    , enterKeyDown: Bool
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init topic =
-    ( Model topic "https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif"
+    ( Model topic "" False
     , Cmd.none
     )
-
-
 
 -- UPDATE
 
@@ -41,11 +36,17 @@ onKeyDown : (Int -> msg) -> Attribute msg
 onKeyDown event =
     on "keydown" (Decode.map event keyCode)
 
+onKeyUp : (Int -> msg) -> Attribute msg
+onKeyUp event =
+    on "keyup" (Decode.map event keyCode)
+
+loadingGif = "https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif"
 
 type Msg
     = MorePlease
     | UpdateTopic String
     | KeyDown Int
+    | KeyUp Int
     | NewGif (Result Http.Error String)
 
 
@@ -56,8 +57,14 @@ update msg model =
             ( { model | topic = newTopic }, Cmd.none )
 
         KeyDown key ->
+            if key == 13 && not model.enterKeyDown then
+                ( { model | enterKeyDown = True, gifUrl = loadingGif }, getRandomGif model.topic )
+            else
+                ( model, Cmd.none )
+
+        KeyUp key ->
             if key == 13 then
-                ( model, getRandomGif model.topic )
+                ( { model | enterKeyDown = False }, Cmd.none )
             else
                 ( model, Cmd.none )
 
@@ -65,7 +72,7 @@ update msg model =
             ( model, getRandomGif model.topic )
 
         NewGif (Ok newUrl) ->
-            ( Model model.topic newUrl, Cmd.none )
+            ( Model model.topic newUrl model.enterKeyDown, Cmd.none )
 
         NewGif (Err _) ->
             ( model, Cmd.none )
@@ -79,10 +86,10 @@ view : Model -> Html Msg
 view model =
     div []
         [ h2 [] [ text model.topic ]
-        , input [ value model.topic, onInput UpdateTopic, onKeyDown KeyDown ] []
+        , input [ value model.topic, onInput UpdateTopic, onKeyDown KeyDown, onKeyUp KeyUp ] []
         , button [ onClick MorePlease, onSubmit MorePlease ] [ text "Search" ]
         , br [] []
-        , img [ src model.gifUrl ] []
+        , img [ src model.gifUrl, style [("display", if model.enterKeyDown then "block" else "none")] ] []
         ]
 
 
