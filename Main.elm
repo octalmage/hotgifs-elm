@@ -77,7 +77,7 @@ update msg model =
 
         KeyUp key ->
             if key == 13 then
-                ( { model | enterKeyDown = False, topic = "" }, Cmd.none )
+                ( { model | enterKeyDown = False, topic = "", instruction = None }, Cmd.none )
             else
                 ( model, Cmd.none )
 
@@ -88,7 +88,7 @@ update msg model =
             ( { model | gifUrl = newUrl }, Cmd.none )
 
         NewGif (Err _) ->
-            ( { model | instruction = NoResults }, Cmd.none )
+            ( { model | instruction = NoResults, gifUrl = "" }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
