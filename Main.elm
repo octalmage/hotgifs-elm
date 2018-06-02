@@ -21,16 +21,24 @@ main =
 -- MODEL
 
 
+type Instruction
+    = Preview
+    | Skip
+    | NoResults
+    | None
+
+
 type alias Model =
     { topic : String
     , gifUrl : String
     , enterKeyDown : Bool
+    , instruction : Instruction
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init topic =
-    ( Model topic "" False
+    ( Model topic "" False None
     , Cmd.none
     )
 
@@ -57,13 +65,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateTopic newTopic ->
-            ( { model | topic = newTopic }, Cmd.none )
+            ( { model | topic = newTopic, instruction = Preview }, Cmd.none )
 
         KeyDown key ->
             if key == 13 && not model.enterKeyDown then
-                update FetchGif { model | enterKeyDown = True, gifUrl = loadingGif }
+                update FetchGif { model | enterKeyDown = True, gifUrl = loadingGif, instruction = Skip }
             else if key == 9 && model.enterKeyDown then
-                update FetchGif { model | gifUrl = loadingGif }
+                update FetchGif { model | gifUrl = loadingGif, instruction = None }
             else
                 ( model, Cmd.none )
 
@@ -77,10 +85,10 @@ update msg model =
             ( model, getRandomGif model.topic )
 
         NewGif (Ok newUrl) ->
-            ( Model model.topic newUrl model.enterKeyDown, Cmd.none )
+            ( { model | gifUrl = newUrl }, Cmd.none )
 
         NewGif (Err _) ->
-            ( model, Cmd.none )
+            ( { model | instruction = NoResults }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -150,6 +158,20 @@ view model =
                 ]
             ]
             []
+        , text
+            (case model.instruction of
+                Preview ->
+                    "Hold enter to preview."
+
+                Skip ->
+                    "Press tab to skip."
+
+                NoResults ->
+                    "No Results."
+
+                None ->
+                    ""
+            )
         ]
 
 
