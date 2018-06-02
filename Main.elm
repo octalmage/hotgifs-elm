@@ -61,9 +61,9 @@ update msg model =
 
         KeyDown key ->
             if key == 13 && not model.enterKeyDown then
-                ( { model | enterKeyDown = True, gifUrl = loadingGif }, getRandomGif model.topic )
+                update FetchGif { model | enterKeyDown = True, gifUrl = loadingGif }
             else if key == 9 && model.enterKeyDown then
-                ( { model | gifUrl = loadingGif }, getRandomGif model.topic )
+                update FetchGif { model | gifUrl = loadingGif }
             else
                 ( model, Cmd.none )
 
