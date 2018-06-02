@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode
+import Style
 
 
 main : Program Never Model Msg
@@ -38,7 +39,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init topic =
-    ( Model topic "" False None
+    ( Model topic loadingGif False None
     , Cmd.none
     )
 
@@ -49,7 +50,7 @@ init topic =
 
 loadingGif : String
 loadingGif =
-    "https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif"
+    "/src/load.gif"
 
 
 type Msg
@@ -65,11 +66,21 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateTopic newTopic ->
-            ( { model | topic = newTopic, instruction = Preview }, Cmd.none )
+            -- Remove instruction if topic is empty.
+            let
+                instruction =
+                    case newTopic of
+                        "" ->
+                            None
+
+                        _ ->
+                            Preview
+            in
+            ( { model | topic = newTopic, instruction = instruction }, Cmd.none )
 
         KeyDown key ->
             if key == 13 && not model.enterKeyDown then
-                update FetchGif { model | enterKeyDown = True, gifUrl = loadingGif, instruction = Skip }
+                update FetchGif { model | enterKeyDown = True, instruction = Skip }
             else if key == 9 && model.enterKeyDown then
                 update FetchGif { model | gifUrl = loadingGif, instruction = None }
             else
@@ -77,7 +88,7 @@ update msg model =
 
         KeyUp key ->
             if key == 13 then
-                ( { model | enterKeyDown = False, topic = "", instruction = None }, Cmd.none )
+                ( { model | enterKeyDown = False, topic = "", instruction = None, gifUrl = loadingGif }, Cmd.none )
             else
                 ( model, Cmd.none )
 
@@ -135,43 +146,42 @@ preventDefaultUpDown =
 
 view : Model -> Html Msg
 view model =
-    div
-        [ preventDefaultUpDown
-        ]
-        [ input
-            [ value model.topic
-            , onInput UpdateTopic
-            , onKeyDown KeyDown
-            , onKeyUp KeyUp
+    div [ Style.container model.enterKeyDown ]
+        [ div
+            [ preventDefaultUpDown
             ]
-            []
-        , br [] []
-        , img
-            [ src model.gifUrl
-            , style
-                [ ( "display"
-                  , if model.enterKeyDown then
-                        "block"
-                    else
-                        "none"
-                  )
+            [ input
+                [ value model.topic
+                , onInput UpdateTopic
+                , onKeyDown KeyDown
+                , onKeyUp KeyUp
+                , Style.input
                 ]
+                []
             ]
-            []
-        , text
-            (case model.instruction of
-                Preview ->
-                    "Hold enter to preview."
+        , div [ Style.scene ]
+            [ img
+                [ src model.gifUrl
+                , Style.gif model.enterKeyDown
+                ]
+                []
+            ]
+        , div [ Style.instructions ]
+            [ text
+                (case model.instruction of
+                    Preview ->
+                        "Hold enter to preview."
 
-                Skip ->
-                    "Press tab to skip."
+                    Skip ->
+                        "Press tab to skip."
 
-                NoResults ->
-                    "No Results."
+                    NoResults ->
+                        "No Results."
 
-                None ->
-                    ""
-            )
+                    None ->
+                        ""
+                )
+            ]
         ]
 
 
