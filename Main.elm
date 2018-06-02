@@ -60,7 +60,6 @@ update msg model =
             ( { model | topic = newTopic }, Cmd.none )
 
         KeyDown key ->
-            -- TODO: This should be DRY'd.
             if key == 13 && not model.enterKeyDown then
                 ( { model | enterKeyDown = True, gifUrl = loadingGif }, getRandomGif model.topic )
             else if key == 9 && model.enterKeyDown then
@@ -89,8 +88,6 @@ update msg model =
 
 
 -- VIEW
--- To capture tab we need to use this technique to preventDefault:
--- https://github.com/elm/virtual-dom/issues/18#issuecomment-273403774
 
 
 onKeyDown : (Int -> msg) -> Attribute msg
@@ -101,6 +98,11 @@ onKeyDown event =
 onKeyUp : (Int -> msg) -> Attribute msg
 onKeyUp event =
     on "keyup" (Decode.map event keyCode)
+
+
+
+-- To capture tab we need to use this technique to preventDefault:
+-- https://github.com/elm/virtual-dom/issues/18#issuecomment-273403774
 
 
 preventDefaultUpDown : Html.Attribute Msg
