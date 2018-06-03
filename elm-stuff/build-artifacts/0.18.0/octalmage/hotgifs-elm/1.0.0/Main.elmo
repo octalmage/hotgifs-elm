@@ -1,0 +1,269 @@
+var _octalmage$hotgifs_elm$Main$decodeGifUrl = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'data',
+		_1: {
+			ctor: '::',
+			_0: 'image_url',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _octalmage$hotgifs_elm$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _octalmage$hotgifs_elm$Main$onKeyUp = function (event) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'keyup',
+		A2(_elm_lang$core$Json_Decode$map, event, _elm_lang$html$Html_Events$keyCode));
+};
+var _octalmage$hotgifs_elm$Main$onKeyDown = function (event) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'keydown',
+		A2(_elm_lang$core$Json_Decode$map, event, _elm_lang$html$Html_Events$keyCode));
+};
+var _octalmage$hotgifs_elm$Main$loadingGif = 'src/load.gif';
+var _octalmage$hotgifs_elm$Main$Model = F4(
+	function (a, b, c, d) {
+		return {topic: a, gifUrl: b, enterKeyDown: c, instruction: d};
+	});
+var _octalmage$hotgifs_elm$Main$None = {ctor: 'None'};
+var _octalmage$hotgifs_elm$Main$init = function (topic) {
+	return {
+		ctor: '_Tuple2',
+		_0: A4(_octalmage$hotgifs_elm$Main$Model, topic, _octalmage$hotgifs_elm$Main$loadingGif, false, _octalmage$hotgifs_elm$Main$None),
+		_1: _elm_lang$core$Platform_Cmd$none
+	};
+};
+var _octalmage$hotgifs_elm$Main$NoResults = {ctor: 'NoResults'};
+var _octalmage$hotgifs_elm$Main$Skip = {ctor: 'Skip'};
+var _octalmage$hotgifs_elm$Main$Preview = {ctor: 'Preview'};
+var _octalmage$hotgifs_elm$Main$NoOp = {ctor: 'NoOp'};
+var _octalmage$hotgifs_elm$Main$preventDefaultUpDown = function () {
+	var filterKey = function (code) {
+		return _elm_lang$core$Native_Utils.eq(code, 9) ? _elm_lang$core$Json_Decode$succeed(code) : _elm_lang$core$Json_Decode$fail('ignored input');
+	};
+	var decoder = A2(
+		_elm_lang$core$Json_Decode$map,
+		_elm_lang$core$Basics$always(_octalmage$hotgifs_elm$Main$NoOp),
+		A2(_elm_lang$core$Json_Decode$andThen, filterKey, _elm_lang$html$Html_Events$keyCode));
+	var options = _elm_lang$core$Native_Utils.update(
+		_elm_lang$html$Html_Events$defaultOptions,
+		{preventDefault: true});
+	return A3(_elm_lang$html$Html_Events$onWithOptions, 'keydown', options, decoder);
+}();
+var _octalmage$hotgifs_elm$Main$NewGif = function (a) {
+	return {ctor: 'NewGif', _0: a};
+};
+var _octalmage$hotgifs_elm$Main$getRandomGif = function (topic) {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=', topic);
+	return A2(
+		_elm_lang$http$Http$send,
+		_octalmage$hotgifs_elm$Main$NewGif,
+		A2(_elm_lang$http$Http$get, url, _octalmage$hotgifs_elm$Main$decodeGifUrl));
+};
+var _octalmage$hotgifs_elm$Main$KeyUp = function (a) {
+	return {ctor: 'KeyUp', _0: a};
+};
+var _octalmage$hotgifs_elm$Main$KeyDown = function (a) {
+	return {ctor: 'KeyDown', _0: a};
+};
+var _octalmage$hotgifs_elm$Main$UpdateTopic = function (a) {
+	return {ctor: 'UpdateTopic', _0: a};
+};
+var _octalmage$hotgifs_elm$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _octalmage$hotgifs_elm$Style$container(model.enterKeyDown),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _octalmage$hotgifs_elm$Main$preventDefaultUpDown,
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$input,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$value(model.topic),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onInput(_octalmage$hotgifs_elm$Main$UpdateTopic),
+								_1: {
+									ctor: '::',
+									_0: _octalmage$hotgifs_elm$Main$onKeyDown(_octalmage$hotgifs_elm$Main$KeyDown),
+									_1: {
+										ctor: '::',
+										_0: _octalmage$hotgifs_elm$Main$onKeyUp(_octalmage$hotgifs_elm$Main$KeyUp),
+										_1: {
+											ctor: '::',
+											_0: _octalmage$hotgifs_elm$Style$input,
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _octalmage$hotgifs_elm$Style$scene,
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$img,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$src(model.gifUrl),
+								_1: {
+									ctor: '::',
+									_0: _octalmage$hotgifs_elm$Style$gif(model.enterKeyDown),
+									_1: {ctor: '[]'}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _octalmage$hotgifs_elm$Style$instructions,
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								function () {
+									var _p0 = model.instruction;
+									switch (_p0.ctor) {
+										case 'Preview':
+											return 'Hold enter to preview.';
+										case 'Skip':
+											return 'Press tab to skip.';
+										case 'NoResults':
+											return 'No Results.';
+										default:
+											return '';
+									}
+								}()),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _octalmage$hotgifs_elm$Main$FetchGif = {ctor: 'FetchGif'};
+var _octalmage$hotgifs_elm$Main$update = F2(
+	function (msg, model) {
+		update:
+		while (true) {
+			var _p1 = msg;
+			switch (_p1.ctor) {
+				case 'UpdateTopic':
+					var _p3 = _p1._0;
+					var instruction = function () {
+						var _p2 = _p3;
+						if (_p2 === '') {
+							return _octalmage$hotgifs_elm$Main$None;
+						} else {
+							return _octalmage$hotgifs_elm$Main$Preview;
+						}
+					}();
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{topic: _p3, instruction: instruction}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				case 'KeyDown':
+					var _p4 = _p1._0;
+					if (_elm_lang$core$Native_Utils.eq(_p4, 13) && (!model.enterKeyDown)) {
+						var _v3 = _octalmage$hotgifs_elm$Main$FetchGif,
+							_v4 = _elm_lang$core$Native_Utils.update(
+							model,
+							{enterKeyDown: true, instruction: _octalmage$hotgifs_elm$Main$Skip});
+						msg = _v3;
+						model = _v4;
+						continue update;
+					} else {
+						if (_elm_lang$core$Native_Utils.eq(_p4, 9) && model.enterKeyDown) {
+							var _v5 = _octalmage$hotgifs_elm$Main$FetchGif,
+								_v6 = _elm_lang$core$Native_Utils.update(
+								model,
+								{gifUrl: _octalmage$hotgifs_elm$Main$loadingGif, instruction: _octalmage$hotgifs_elm$Main$None});
+							msg = _v5;
+							model = _v6;
+							continue update;
+						} else {
+							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+						}
+					}
+				case 'KeyUp':
+					return _elm_lang$core$Native_Utils.eq(_p1._0, 13) ? {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{enterKeyDown: false, topic: '', instruction: _octalmage$hotgifs_elm$Main$None, gifUrl: _octalmage$hotgifs_elm$Main$loadingGif}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				case 'FetchGif':
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: _octalmage$hotgifs_elm$Main$getRandomGif(model.topic)
+					};
+				case 'NewGif':
+					if (_p1._0.ctor === 'Ok') {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{gifUrl: _p1._0._0}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{instruction: _octalmage$hotgifs_elm$Main$NoResults, gifUrl: ''}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					}
+				default:
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			}
+		}
+	});
+var _octalmage$hotgifs_elm$Main$main = _elm_lang$html$Html$program(
+	{
+		init: _octalmage$hotgifs_elm$Main$init(''),
+		view: _octalmage$hotgifs_elm$Main$view,
+		update: _octalmage$hotgifs_elm$Main$update,
+		subscriptions: _octalmage$hotgifs_elm$Main$subscriptions
+	})();
