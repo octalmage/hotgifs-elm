@@ -50,7 +50,7 @@ init topic =
 
 loadingGif : String
 loadingGif =
-    "/src/load.gif"
+    "src/load.gif"
 
 
 type Msg
